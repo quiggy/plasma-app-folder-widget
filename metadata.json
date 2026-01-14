@@ -1,7 +1,7 @@
 {
 	"KPackageStructure": "Plasma/Applet",
 	"KPlugin": {
-        "Id": "org.example.appfolder",
+        "Id": "de.tripleh.appfolder",
         "Name": "App Folder",
         "Description": "A folder of apps in the panel",
         "Icon": "folder",
