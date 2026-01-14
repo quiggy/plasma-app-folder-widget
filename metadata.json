@@ -5,12 +5,12 @@
         "Name": "App Folder",
         "Description": "A folder of apps in the panel",
         "Icon": "folder",
-        "Version": "0.1",
+        "Version": "1.0",
         "License": "GPL-3.0-or-later",
         "Authors": [
    	{
-            "Name": "Your Name",
-            "Email": "you@example.com"
+            "Name": "Alexander Hohenhorst",
+            "Email": "alexander.hohenhorst@gmx.de"
          }
         ],
         "Category": "Application Launchers"
