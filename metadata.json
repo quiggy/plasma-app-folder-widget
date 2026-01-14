@@ -1,0 +1,19 @@
+{
+	"KPackageStructure": "Plasma/Applet",
+	"KPlugin": {
+        "Id": "org.example.appfolder",
+        "Name": "App Folder",
+        "Description": "A folder of apps in the panel",
+        "Icon": "folder",
+        "Version": "0.1",
+        "License": "GPL-3.0-or-later",
+        "Authors": [
+   	{
+            "Name": "Your Name",
+            "Email": "you@example.com"
+         }
+        ],
+        "Category": "Application Launchers"
+      },
+      "X-Plasma-API-Minimum-Version": "6.0"
+}

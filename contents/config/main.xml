@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<kcfg xmlns="http://www.kde.org/standards/kcfg/1.0"
+      xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:schemaLocation="http://www.kde.org/standards/kcfg/1.0
+      http://www.kde.org/standards/kcfg/1.0/kcfg.xsd" >
+  <kcfgfile name=""/>
+
+  <group name="General">
+    <entry name="folderName" type="String">
+      <default>My Apps</default>
+    </entry>
+    <entry name="folderIcon" type="String">
+      <default>folder</default>
+    </entry>
+    <entry name="appList" type="String">
+      <default>[{"name":"Dolphin","icon":"system-file-manager","cmd":"dolphin"},{"name":"Konsole","icon":"utilities-terminal","cmd":"konsole"},{"name":"Firefox","icon":"firefox","cmd":"firefox"}]</default>
+    </entry>
+  </group>
+</kcfg>
