@@ -1,0 +1,20 @@
+# Editor files
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Build artifacts
+*.o
+*.so
+*.qmlc
+*.jsc
+
+# Backup files
+*.bak
+*.backup
