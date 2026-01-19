@@ -5,6 +5,9 @@ A compact Plasma 6 widget that brings smartphone-style app folders to your KDE t
 ![Plasma 6](https://img.shields.io/badge/Plasma-6-blue)
 ![License](https://img.shields.io/badge/license-GPL--3.0-green)
 
+
+Hallo
+
 ## Features
 
 - 🔍 **Fuzzy Search** - Quickly find apps by typing partial names (e.g., "ff" finds Firefox)
