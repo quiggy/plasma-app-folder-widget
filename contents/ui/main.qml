@@ -1,4 +1,5 @@
 import QtQuick
+import QtQuick.Controls as QQC2
 import QtQuick.Layouts
 import org.kde.plasma.plasmoid
 import org.kde.plasma.core as PlasmaCore
@@ -167,32 +168,92 @@ PlasmoidItem {
             width: gridColumns * cellWidth + padding * 2 + gapLeft + gapRight
             height: chromeHeight + gridHeight + gapTop + gapBottom
 
-            // Glassy tinted panel: subtle vertical sheen and a light top edge
-            Rectangle {
-                id: bgRect
+            // Where the speech-bubble tail should point: the center of the
+            // panel icon, mapped into our coordinates (fallback: center)
+            readonly property real tailCenterX: {
+                void popupDialog.visible
+                void popupDialog.x
+                void width
+                let cx = width / 2
+                const vp = popupDialog.visualParent
+                if (vp) {
+                    try {
+                        const p = mapFromItem(vp, vp.width / 2, 0)
+                        if (!isNaN(p.x)) {
+                            cx = p.x
+                        }
+                    } catch (e) {}
+                }
+                const min = gapLeft + Kirigami.Units.gridUnit + 14
+                const max = width - gapRight - Kirigami.Units.gridUnit - 14
+                return Math.max(min, Math.min(max, cx))
+            }
+
+            // Glassy tinted panel drawn as one shape: rounded rect plus a
+            // small macOS-style tail pointing down at the dock icon
+            Canvas {
+                id: bgCanvas
                 visible: root.translucentPopup
                 anchors.fill: parent
-                anchors.leftMargin: fullRep.gapLeft
-                anchors.rightMargin: fullRep.gapRight
-                anchors.topMargin: fullRep.gapTop
-                anchors.bottomMargin: fullRep.gapBottom
-                radius: Kirigami.Units.gridUnit
 
-                readonly property real bgAlpha: plasmoid.configuration.backgroundOpacity / 100
+                property real tailX: fullRep.tailCenterX
+                property real bgAlpha: plasmoid.configuration.backgroundOpacity / 100
+                property color base: Kirigami.Theme.backgroundColor
+
+                onTailXChanged: requestPaint()
+                onBgAlphaChanged: requestPaint()
+                onBaseChanged: requestPaint()
+                onWidthChanged: requestPaint()
+                onHeightChanged: requestPaint()
+
                 function glass(lift, a) {
-                    const c = Kirigami.Theme.backgroundColor
-                    return Qt.rgba(c.r * (1 - lift) + lift,
-                                   c.g * (1 - lift) + lift,
-                                   c.b * (1 - lift) + lift, a)
+                    const r = Math.round((base.r * (1 - lift) + lift) * 255)
+                    const g = Math.round((base.g * (1 - lift) + lift) * 255)
+                    const b = Math.round((base.b * (1 - lift) + lift) * 255)
+                    return "rgba(" + r + "," + g + "," + b + "," + a + ")"
                 }
 
-                gradient: Gradient {
-                    GradientStop { position: 0.0; color: bgRect.glass(0.10, Math.min(1, bgRect.bgAlpha + 0.05)) }
-                    GradientStop { position: 0.35; color: bgRect.glass(0.03, bgRect.bgAlpha) }
-                    GradientStop { position: 1.0; color: bgRect.glass(0.0, bgRect.bgAlpha) }
+                onPaint: {
+                    const ctx = getContext("2d")
+                    ctx.reset()
+                    const L = fullRep.gapLeft + 0.5
+                    const T = fullRep.gapTop + 0.5
+                    const R = width - fullRep.gapRight - 0.5
+                    const B = height - fullRep.gapBottom - 0.5
+                    const rad = Kirigami.Units.gridUnit
+                    const hasTail = fullRep.gapBottom > 4
+                    const cx = tailX
+                    const halfW = 13
+                    const tipY = B + Math.min(fullRep.gapBottom - 3, 11)
+
+                    ctx.beginPath()
+                    ctx.moveTo(L + rad, T)
+                    ctx.lineTo(R - rad, T)
+                    ctx.arcTo(R, T, R, T + rad, rad)
+                    ctx.lineTo(R, B - rad)
+                    ctx.arcTo(R, B, R - rad, B, rad)
+                    if (hasTail) {
+                        ctx.lineTo(cx + halfW, B)
+                        ctx.lineTo(cx + 1.5, tipY - 1)
+                        ctx.quadraticCurveTo(cx, tipY, cx - 1.5, tipY - 1)
+                        ctx.lineTo(cx - halfW, B)
+                    }
+                    ctx.lineTo(L + rad, B)
+                    ctx.arcTo(L, B, L, B - rad, rad)
+                    ctx.lineTo(L, T + rad)
+                    ctx.arcTo(L, T, L + rad, T, rad)
+                    ctx.closePath()
+
+                    const grad = ctx.createLinearGradient(0, T, 0, hasTail ? tipY : B)
+                    grad.addColorStop(0.0, glass(0.10, Math.min(1, bgAlpha + 0.05)))
+                    grad.addColorStop(0.35, glass(0.03, bgAlpha))
+                    grad.addColorStop(1.0, glass(0.0, bgAlpha))
+                    ctx.fillStyle = grad
+                    ctx.fill()
+                    ctx.strokeStyle = "rgba(255, 255, 255, 0.18)"
+                    ctx.lineWidth = 1
+                    ctx.stroke()
                 }
-                border.width: 1
-                border.color: Qt.rgba(1, 1, 1, 0.18)
             }
 
             ColumnLayout {
@@ -245,18 +306,39 @@ PlasmoidItem {
                     }
                 }
 
-                PlasmaComponents.ScrollView {
+                Item {
                     Layout.fillWidth: true
                     Layout.fillHeight: true
                     Layout.topMargin: Kirigami.Units.smallSpacing
 
                     GridView {
-                        id: gridView
-                        clip: true
-                        interactive: fullRep.gridRows * fullRep.cellHeight > fullRep.gridHeight
-                        cellWidth: fullRep.cellWidth
-                        cellHeight: fullRep.cellHeight
-                        model: root.apps
+                    id: gridView
+                    anchors.fill: parent
+                    clip: true
+                    interactive: fullRep.gridRows * fullRep.cellHeight > fullRep.gridHeight
+                    cellWidth: fullRep.cellWidth
+                    cellHeight: fullRep.cellHeight
+                    model: root.apps
+
+                    // Light macOS-style scrollbar: slim translucent handle,
+                    // no track, sitting in the popup padding with a small
+                    // gap to the glass edge
+                    QQC2.ScrollBar.vertical: QQC2.ScrollBar {
+                        policy: gridView.interactive ? QQC2.ScrollBar.AsNeeded
+                                                     : QQC2.ScrollBar.AlwaysOff
+                        background: null
+                        transform: Translate {
+                            x: fullRep.padding - 4
+                        }
+                        contentItem: Rectangle {
+                            implicitWidth: 6
+                            radius: width / 2
+                            color: Qt.rgba(1, 1, 1, 0.55)
+                            border.width: 1
+                            border.color: Qt.rgba(0, 0, 0, 0.12)
+                        }
+                    }
+
 
                         delegate: Item {
                             width: gridView.cellWidth
@@ -305,6 +387,31 @@ PlasmoidItem {
                                     popupDialog.visible = false
                                 }
                             }
+                        }
+                    }
+
+                    // Faster wheel scrolling: one notch ≈ one row. The
+                    // overlay intercepts wheel events before the GridView's
+                    // sluggish default handling; clicks pass through.
+                    MouseArea {
+                        anchors.fill: parent
+                        z: 10
+                        acceptedButtons: Qt.NoButton
+                        onWheel: (wheel) => {
+                            if (!gridView.interactive) {
+                                wheel.accepted = false
+                                return
+                            }
+                            let dy
+                            if (wheel.pixelDelta.y !== 0) {
+                                dy = wheel.pixelDelta.y * 2
+                            } else {
+                                dy = wheel.angleDelta.y / 120 * fullRep.cellHeight * 0.9
+                            }
+                            const maxY = gridView.originY + gridView.contentHeight - gridView.height
+                            gridView.contentY = Math.max(gridView.originY,
+                                Math.min(maxY, gridView.contentY - dy))
+                            wheel.accepted = true
                         }
                     }
                 }
