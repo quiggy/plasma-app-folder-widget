@@ -7,13 +7,25 @@
 
   <group name="General">
     <entry name="folderName" type="String">
-      <default>My Apps</default>
+      <default>Programme</default>
     </entry>
     <entry name="folderIcon" type="String">
-      <default>folder</default>
+      <default>default-folder-apps</default>
     </entry>
     <entry name="appList" type="String">
       <default>[{"name":"Dolphin","icon":"system-file-manager","cmd":"dolphin"},{"name":"Konsole","icon":"utilities-terminal","cmd":"konsole"},{"name":"Firefox","icon":"firefox","cmd":"firefox"}]</default>
+    </entry>
+    <entry name="maxColumns" type="Int">
+      <default>11</default>
+    </entry>
+    <entry name="iconSize" type="Int">
+      <default>64</default>
+    </entry>
+    <entry name="translucentBackground" type="Bool">
+      <default>true</default>
+    </entry>
+    <entry name="backgroundOpacity" type="Int">
+      <default>60</default>
     </entry>
   </group>
 </kcfg>

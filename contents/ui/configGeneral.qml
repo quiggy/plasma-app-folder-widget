@@ -8,6 +8,10 @@ import Qt.labs.folderlistmodel
 KCM.SimpleKCM {
     property alias cfg_folderName: folderNameField.text
     property alias cfg_folderIcon: folderIconField.text
+    property alias cfg_maxColumns: maxColumnsSpin.value
+    property alias cfg_iconSize: iconSizeSpin.value
+    property alias cfg_translucentBackground: translucentCheck.checked
+    property alias cfg_backgroundOpacity: bgOpacitySpin.value
     property string cfg_appList
     property var selectedApps: []
 
@@ -54,6 +58,36 @@ KCM.SimpleKCM {
             id: folderIconField
             Kirigami.FormData.label: "Folder Icon:"
             placeholderText: "e.g., folder, applications-games"
+        }
+
+        QQC2.SpinBox {
+            id: maxColumnsSpin
+            Kirigami.FormData.label: "Max columns:"
+            from: 1
+            to: 20
+        }
+
+        QQC2.SpinBox {
+            id: iconSizeSpin
+            Kirigami.FormData.label: "Icon size:"
+            from: 32
+            to: 128
+            stepSize: 16
+        }
+
+        QQC2.CheckBox {
+            id: translucentCheck
+            Kirigami.FormData.label: "Background:"
+            text: "Translucent"
+        }
+
+        QQC2.SpinBox {
+            id: bgOpacitySpin
+            Kirigami.FormData.label: "Background opacity (%):"
+            from: 0
+            to: 100
+            stepSize: 5
+            enabled: translucentCheck.checked
         }
 
         RowLayout {
